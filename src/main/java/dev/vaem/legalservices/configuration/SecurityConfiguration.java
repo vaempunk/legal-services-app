@@ -1,4 +1,4 @@
-package dev.vaem.legalservice.configuration;
+package dev.vaem.legalservices.configuration;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -13,8 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import dev.vaem.legalservice.user.User;
-import dev.vaem.legalservice.user.UserRepository;
+import dev.vaem.legalservices.user.account.UserAccount;
+import dev.vaem.legalservices.user.account.UserAccountRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -27,13 +27,16 @@ public class SecurityConfiguration {
                 .cors(withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/", "/home", "/registration", "/client/register").permitAll()
-                        .requestMatchers("/hello", "/client").hasRole("client")
+                        .requestMatchers("/", "/registration").permitAll()
+                        // .requestMatchers("/lawyer/**", "/lawyer/me").hasRole("lawyer")
                         .anyRequest().authenticated())
                 .formLogin(login -> login
                         .loginPage("/login")
                         .defaultSuccessUrl("/")
-                        .permitAll(true));
+                        .permitAll(true))
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/")
+                        .deleteCookies("JSESSIONID"));
         return http.build();
     }
 
@@ -41,10 +44,10 @@ public class SecurityConfiguration {
     public UserDetailsService userDetailsService() {
         return new UserDetailsService() {
             @Autowired
-            private UserRepository userRepository;
+            private UserAccountRepository userRepository;
 
             @Override
-            public User loadUserByUsername(String username) throws UsernameNotFoundException {
+            public UserAccount loadUserByUsername(String username) throws UsernameNotFoundException {
                 return userRepository.findByEmail(username)
                         .orElseThrow(() -> new UsernameNotFoundException("User %s not found".formatted(username)));
             }

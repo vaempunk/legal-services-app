@@ -25,12 +25,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
-                    <li sec:authorize="hasRole('client')" class="nav-item"> <a href="/client/me" class="nav-link">Me</a>
-                    </li>
-                    <li sec:authorize="hasRole('lawyer')" class="nav-item"> <a href="/lawyer/me" class="nav-link">Me</a>
-                    </li>
-                    <li sec:authorize="isAuthenticated()" class="nav-item"><a href="/logout" class="nav-link">Logout</a></li>
-                    <li class="nav-item dropdown" sec:authorize="!isAuthenticated()">
+                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
                             Join Us

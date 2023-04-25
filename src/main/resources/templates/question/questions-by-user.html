@@ -25,37 +25,37 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
-                    <li sec:authorize="hasRole('client')" class="nav-item"> <a href="/client/me" class="nav-link disabled">Me</a>
+                    <li class="nav-item"> <a href="/users/me" class="nav-link">Me</a>
                     </li>
-                    <li sec:authorize="hasRole('lawyer')" class="nav-item"> <a href="/lawyer/me" class="nav-link">Me</a>
-                    </li>
-                    <li sec:authorize="isAuthenticated()" class="nav-item"><a href="/logout" class="nav-link">Logout</a></li>
-                    <li class="nav-item dropdown" sec:authorize="!isAuthenticated()">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            Join Us
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/login">Log In</a></li>
-                            <li><a class="dropdown-item" href="/registration">Registration</a></li>
-                        </ul>
-                    </li>
+                    <li class="nav-item"><a href="/logout" class="nav-link">Logout</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    Email: <span th:text="${client.email}"></span><br>
-    Firstname: <span th:text="${client.firstname}"></span><br>
-    Lastname: <span th:text="${client.lastname}"></span><br>
-    Middlename: <span th:text="${client.middlename}"></span><br>
-    Languages:
-    <table>
-        <tr th:each="lang : ${client.languages}">
-            <td th:text="${lang}"></td>
-        </tr>
-    </table><br>
-    Joined Us At: <span th:text="${client.createdDate}"></span>
+    <ul>
+        <li th:each="q : ${questions}">
+            Answered by: <span th:text="${q.userId}"></span><br>
+            ID: <span th:text="${q.questionId}"></span><br>
+            Header: <span th:text="${q.header}"></span><br>
+            Tags: <ul>
+                <li th:each="tag : ${q.tags}"><span th:text="${tag}"></span></li>
+            </ul>
+            Date: <span th:text="${q.date}"></span>
+        </li>
+    </ul>
+
+    <h2>Ask Question</h2>
+    <form action="/questions" method="post">
+        Header: <input type="text" name="header"><br>
+        Body: <input type="text" name="body"><br>
+        Tags:
+        <input type="checkbox" name="tags" value="A">
+        <input type="checkbox" name="tags" value="B">
+        <input type="checkbox" name="tags" value="C"><br>
+        <input type="submit" value="Add">
+    </form>
+
 </body>
 
 </html>
