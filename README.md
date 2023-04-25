@@ -26,3 +26,4 @@
 - Spring Security
 - Thymeleaf
 - Apache Cassandra
+- HTML, Bootstrap
