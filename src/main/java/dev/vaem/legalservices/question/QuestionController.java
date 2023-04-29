@@ -1,11 +1,10 @@
 package dev.vaem.legalservices.question;
 
-import java.time.Instant;
-import java.util.Optional;
+import java.util.Collections;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,56 +13,40 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.server.ResponseStatusException;
 
-import com.datastax.oss.driver.api.core.uuid.Uuids;
-
-import dev.vaem.legalservices.question.bytags.QuestionByTag;
-import dev.vaem.legalservices.question.bytags.QuestionByTagRepository;
-import dev.vaem.legalservices.question.byuser.QuestionByUser;
-import dev.vaem.legalservices.question.byuser.QuestionByUserRepository;
+import dev.vaem.legalservices.answer.AnswerService;
 import dev.vaem.legalservices.user.account.UserAccount;
 
-// TODO: pagination
 @Controller
 public class QuestionController {
 
     @Autowired
-    private QuestionRepository questionRepository;
+    private QuestionService questionService;
 
     @Autowired
-    private QuestionByUserRepository questionByUserRepository;
-
-    @Autowired
-    private QuestionByTagRepository questionByTagsRepository;
+    private AnswerService answerService;
 
     @GetMapping("/questions/{qId}")
     public String getQuestion(@PathVariable("qId") UUID questionId, Model model) {
-        var question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        question.setDate(Instant.ofEpochMilli(Uuids.unixTimestamp(question.getQuestionId())));
-        model.addAttribute("q", question);
+        var question = questionService.get(questionId);
+        model.addAttribute("question", question);
+
+        var answers = answerService.getByQuestionId(questionId);
+        model.addAttribute("answers", answers);
+
         return "question/question";
     }
 
     @GetMapping("/questions")
-    public String getQuestions(@RequestParam(name = "tag") Optional<String> tag, Model model) {
-        if (tag.isPresent()) {
-            var questions = questionByTagsRepository.findByTagsContaining(tag.get());
-            questions.forEach(q -> q.setDate(Instant.ofEpochMilli(Uuids.unixTimestamp(q.getQuestionId()))));
-            model.addAttribute("questions", questions);
-        } else {
-            var questions = questionByTagsRepository.findAll();
-            questions.forEach(q -> q.setDate(Instant.ofEpochMilli(Uuids.unixTimestamp(q.getQuestionId()))));
-            model.addAttribute("questions", questions);
-        }
+    public String getQuestions(@RequestParam(name = "tag", required = false) Set<String> tags, Model model) {
+        var questions = questionService.getByTag(tags);
+        model.addAttribute("questions", questions);
         return "question/questions";
     }
 
     @GetMapping("/users/{uId}/questions")
     public String getQuestionsByUser(@PathVariable("uId") UUID userId, Model model) {
-        var questionsByUser = questionByUserRepository.findAllByUserId(userId);
-        questionsByUser.forEach(q -> q.setDate(Instant.ofEpochMilli(Uuids.unixTimestamp(q.getQuestionId()))));
+        var questionsByUser = questionService.getByUser(userId);
         model.addAttribute("questions", questionsByUser);
         return "question/questions-by-user";
     }
@@ -75,27 +58,8 @@ public class QuestionController {
 
     @PostMapping("/questions")
     public String addQuestion(@AuthenticationPrincipal UserAccount me, @ModelAttribute Question question) {
-        question.setUserEmail(me.getEmail());
-        question.setQuestionId(Uuids.timeBased());
-        questionRepository.save(question);
-
-        var questionByUser = QuestionByUser.builder()
-                .userId(me.getUserId())
-                .questionId(question.getQuestionId())
-                .header(question.getHeader())
-                .tags(question.getTags())
-                .build();
-        questionByUserRepository.save(questionByUser);
-
-        var questionByTags = QuestionByTag.builder()
-                .tags(question.getTags())
-                .questionId(question.getQuestionId())
-                .userEmail(question.getUserEmail())
-                .header(question.getHeader())
-                .build();
-        questionByTagsRepository.save(questionByTags);
-
-        return "redirect:questions/" + question.getQuestionId();
+        var questionId = questionService.save(me, question);
+        return "redirect:questions/" + questionId;
     }
 
 }

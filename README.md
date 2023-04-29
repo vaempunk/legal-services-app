@@ -27,3 +27,14 @@
 - Thymeleaf
 - Apache Cassandra
 - HTML, Bootstrap
+
+## TODO:
+
+- pagination
+- auto redirect /users/me/**
+- add last login date update
+- store sessions in redis
+
+## FIXME:
+
+- like/dislike works only for one answer

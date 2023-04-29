@@ -1,9 +1,9 @@
-package dev.vaem.legalservices.user;
+package dev.vaem.legalservices.answer.rating;
 
-import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.cassandra.core.mapping.CassandraType;
 import org.springframework.data.cassandra.core.mapping.CassandraType.Name;
 import org.springframework.data.cassandra.core.mapping.Column;
@@ -18,24 +18,16 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("users")
-public class User {
-
+@Table("answer_ratings")
+public class AnswerRating {
+    
     @Id
-    @Column("user_id")
+    @Column("answer_id")
     @CassandraType(type = Name.TIMEUUID)
-    private UUID userId;
+    private UUID answerId;
 
-    private String email;
-
-    private String firstname;
-
-    private String lastname;
-
-    @Column("last_login_date")
-    private Instant lastLoginDate;
-
-    @Column("created_date")
-    private Instant createdDate;
+    @CassandraType(type = Name.COUNTER)
+    @ReadOnlyProperty
+    private long rating;
 
 }
