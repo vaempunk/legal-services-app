@@ -1,13 +1,11 @@
 package dev.vaem.legalservices.user;
 
 import java.time.Instant;
-import java.util.UUID;
+import java.util.Set;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.cassandra.core.mapping.CassandraType;
-import org.springframework.data.cassandra.core.mapping.CassandraType.Name;
-import org.springframework.data.cassandra.core.mapping.Column;
-import org.springframework.data.cassandra.core.mapping.Table;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,24 +16,27 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("users")
+@Document("users")
 public class User {
 
     @Id
-    @Column("user_id")
-    @CassandraType(type = Name.TIMEUUID)
-    private UUID userId;
+    private String userId;
 
+    @Indexed(unique = true)
     private String email;
 
     private String firstname;
 
     private String lastname;
 
-    @Column("last_login_date")
     private Instant lastLoginDate;
 
-    @Column("created_date")
     private Instant createdDate;
+
+    private String password;
+
+    private Set<String> roles;
+
+    private boolean enabled;
 
 }

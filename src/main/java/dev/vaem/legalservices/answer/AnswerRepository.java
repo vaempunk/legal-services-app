@@ -1,16 +1,33 @@
 package dev.vaem.legalservices.answer;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
-import org.springframework.data.cassandra.repository.MapIdCassandraRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-public interface AnswerRepository extends MapIdCassandraRepository<Answer> {
+public interface AnswerRepository extends MongoRepository<Answer, String> {
 
-    Optional<Answer> findByAnswerId(UUID answerId);
+    List<Answer> findByQuestionIdOrderByRatingDesc(String questionId);
 
-    // @AllowFiltering
-    List<Answer> findByQuestionIdOrderByAnswerIdDesc(UUID questionId);
+    @Query("""
+            db.answers.updateOne(
+                {"answerId": :answerId},
+                {
+                    $inc: {"rating": 1}
+                }
+            )
+            """)
+    void incrementRating(@Param("answerId") String answerId);
+
+    @Query("""
+            db.answers.updateOne(
+                {"answerId": ?0},
+                {
+                    $inc: {"rating": -1}
+                }
+            )
+            """)
+    void decrementRating(@Param("answerId") String answerId);
 
 }

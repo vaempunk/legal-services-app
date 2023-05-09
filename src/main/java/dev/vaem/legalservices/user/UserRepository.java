@@ -1,9 +1,11 @@
 package dev.vaem.legalservices.user;
 
-import java.util.UUID;
+import java.util.Optional;
 
-import org.springframework.data.cassandra.repository.CassandraRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface UserRepository extends CassandraRepository<User, UUID> {
+public interface UserRepository extends MongoRepository<User, String> {
+
+    Optional<User> findByEmail(String email);
 
 }

@@ -41,62 +41,28 @@
     </ul>
     Date: <span th:text="${question.date}"></span>
 
-    <ul>
-        <li th:each="answer : ${answers}">
-            <button id="like-a">Like</button><br>
-            <button id="dislike-a">Dislike</button><br>
-            User: <span th:text="${answer.userEmail}"></span><br>
-            Rating: <span th:text="${answer.rating} ?: 0" id="rating"></span><br>
-            Date: <span th:text="${answer.date}"></span><br>
-            TL;DR: <span th:text="${answer.tldr}"></span><br>
-            Body: <span th:text="${answer.body}"></span>
-            ID: <span th:text="${answer.answerId}" id="a-id"></span>
-        </li>
-    </ul>
-
     <h2>Answer this Question</h2>
-    <form action="#" th:action="@{/questions/{questionId}/answers(questionId=${question.questionId})}" method="post">
+    <form action="#" th:action="@{/questions/{qId}/answers(qId=${question.questionId})}" method="post">
         Body: <input type="text" name="body">
         TLDR: <input type="text" name="tldr">
         <input type="submit" value="Answer">
     </form>
 
-    <script>
-        const likeButton = document.getElementById('like-a');
-        const dislikeButton = document.getElementById('dislike-a');
-        const url = 'http://localhost:8080/answers/';
-
-        likeButton.onclick = () => {
-            const aId = document.getElementById('a-id').textContent;
-            fetch(url + aId + '/like', {
-                method: 'PATCH',
-            })
-                .then((response) => {
-                    if (response.ok) {
-                        window.location.reload();
-                        // var rating = document.getElementById('rating');
-                        // rating.textContent = parseInt(rating.textContent) + 1; 
-                    } else {
-                        alert('error');
-                    }
-                });
-        };
-
-        dislikeButton.onclick = () => {
-            const aId = document.getElementById('a-id').textContent;
-            fetch(url + aId + '/dislike', {
-                method: 'PATCH',
-            }).then((response) => {
-                if (response.ok) {
-                    window.location.reload();
-                    // var rating = document.getElementById('rating');
-                    //     rating.textContent = parseInt(rating.textContent) - 1; 
-                } else {
-                    alert('error');
-                }
-            });
-        };
-    </script>
+    <ul>
+        <li th:each="answer : ${answers}">
+            <form action="#" th:action="@{/questions/{qId}/answers/{aId}/like(aId=${answer.answerId},qId=${question.questionId})}" method="post">
+                <input type="submit" value="Like"></input>
+            </form>
+            <form action="#" th:action="@{/questions/{qId}/answers/{aId}/dislike(aId=${answer.answerId},qId=${question.questionId})}" method="post">
+                <input type="submit" value="Dislike"></input>
+            </form>
+            User: <span th:text="${answer.userEmail}"></span><br>
+            Rating: <span th:text="${answer.rating} ?: 0"></span><br>
+            Date: <span th:text="${answer.date}"></span><br>
+            TL;DR: <span th:text="${answer.tldr}"></span><br>
+            Body: <span th:text="${answer.body}"></span>
+        </li>
+    </ul>
 
 </body>
 

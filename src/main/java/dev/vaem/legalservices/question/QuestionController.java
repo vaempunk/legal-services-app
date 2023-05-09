@@ -1,8 +1,6 @@
 package dev.vaem.legalservices.question;
 
-import java.util.Collections;
 import java.util.Set;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,7 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import dev.vaem.legalservices.answer.AnswerService;
-import dev.vaem.legalservices.user.account.UserAccount;
+import dev.vaem.legalservices.user.UserAccount;
 
 @Controller
 public class QuestionController {
@@ -27,7 +25,7 @@ public class QuestionController {
     private AnswerService answerService;
 
     @GetMapping("/questions/{qId}")
-    public String getQuestion(@PathVariable("qId") UUID questionId, Model model) {
+    public String getQuestion(@PathVariable("qId") String questionId, Model model) {
         var question = questionService.get(questionId);
         model.addAttribute("question", question);
 
@@ -38,14 +36,17 @@ public class QuestionController {
     }
 
     @GetMapping("/questions")
-    public String getQuestions(@RequestParam(name = "tag", required = false) Set<String> tags, Model model) {
-        var questions = questionService.getByTag(tags);
+    public String getQuestions(
+        @RequestParam(name = "tag", required = false) Set<String> tags,
+        @RequestParam(name = "page", defaultValue = "0") int page,
+        Model model) {
+        var questions = questionService.getByTag(tags, page);
         model.addAttribute("questions", questions);
         return "question/questions";
     }
 
     @GetMapping("/users/{uId}/questions")
-    public String getQuestionsByUser(@PathVariable("uId") UUID userId, Model model) {
+    public String getQuestionsByUser(@PathVariable("uId") String userId, Model model) {
         var questionsByUser = questionService.getByUser(userId);
         model.addAttribute("questions", questionsByUser);
         return "question/questions-by-user";
@@ -53,7 +54,7 @@ public class QuestionController {
 
     @GetMapping("/users/me/questions")
     public String getMyQuestions(@AuthenticationPrincipal UserAccount me) {
-        return "redirect:/users/%s/questions".formatted(me.getUserId().toString());
+        return "redirect:/users/%s/questions".formatted(me.getUserId());
     }
 
     @PostMapping("/questions")

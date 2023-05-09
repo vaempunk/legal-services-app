@@ -2,20 +2,13 @@ package dev.vaem.legalservices.configuration;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.RememberMeServices;
-
-import dev.vaem.legalservices.user.account.UserAccount;
-import dev.vaem.legalservices.user.account.UserAccountRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -36,23 +29,8 @@ public class SecurityConfiguration {
                         .defaultSuccessUrl("/")
                         .permitAll(true))
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/")
-                        .deleteCookies("JSESSIONID"));
+                        .logoutSuccessUrl("/"));
         return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new UserDetailsService() {
-            @Autowired
-            private UserAccountRepository userRepository;
-
-            @Override
-            public UserAccount loadUserByUsername(String username) throws UsernameNotFoundException {
-                return userRepository.findByEmail(username)
-                        .orElseThrow(() -> new UsernameNotFoundException("User %s not found".formatted(username)));
-            }
-        };
     }
 
     @Bean
