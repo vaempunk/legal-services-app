@@ -1,9 +1,10 @@
 package dev.vaem.legalservices.answer;
 
 import java.time.Instant;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -13,14 +14,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class AnswerService {
 
+    private int pageSize = 10;
+
     @Autowired
     private AnswerRepository answerRepository;
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public List<Answer> getByQuestionId(String questionId) {
-        var answers = answerRepository.findByQuestionIdOrderByRatingDesc(questionId);
+    public Page<Answer> getByQuestionId(String questionId, int page) {
+        var pageable = PageRequest.of(page, pageSize);
+        var answers = answerRepository.findByQuestionIdOrderByRatingDescDateDesc(questionId, pageable);
         return answers;
     }
 

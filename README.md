@@ -22,15 +22,16 @@
 - Java 17
 - Spring Web MVC
 - Spring Boot
-- Spring Data for Apache Cassandra
+- Spring Data
+- Spring Session
 - Spring Security
 - Thymeleaf
-- Apache Cassandra
+- MongoDB
+- Redis
 - HTML, Bootstrap
 
 ## TODO:
 
-- pagination
 - email approve for registraion
 
 ## FIXME:

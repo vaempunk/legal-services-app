@@ -1,10 +1,11 @@
 package dev.vaem.legalservices.question;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -13,6 +14,8 @@ import dev.vaem.legalservices.user.UserAccount;
 
 @Service
 public class QuestionService {
+
+    private int pageSize = 10;
 
     @Autowired
     private QuestionRepository questionRepository;
@@ -23,15 +26,17 @@ public class QuestionService {
         return question;
     }
 
-    public List<Question> getByTag(Set<String> tags, int page) {
+    public Page<Question> getByTag(Set<String> tags, int page) {
+        var pageable = PageRequest.of(page, pageSize);
         var questions = (tags == null || tags.isEmpty())
-                ? questionRepository.findAll()
-                : questionRepository.findByTagsContaining(tags);
+                ? questionRepository.findAll(pageable)
+                : questionRepository.findByTagsContaining(tags, pageable);
         return questions;
     }
 
-    public List<Question> getByUser(String userId) {
-        var questionsByUser = questionRepository.findByUserId(userId);
+    public Page<Question> getByUser(String userId, int page) {
+        var pageable = PageRequest.of(page, pageSize);
+        var questionsByUser = questionRepository.findByUserId(userId, pageable);
         return questionsByUser;
     }
 

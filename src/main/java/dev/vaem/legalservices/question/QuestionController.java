@@ -25,11 +25,14 @@ public class QuestionController {
     private AnswerService answerService;
 
     @GetMapping("/questions/{qId}")
-    public String getQuestion(@PathVariable("qId") String questionId, Model model) {
+    public String getQuestion(
+            @PathVariable("qId") String questionId,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            Model model) {
         var question = questionService.get(questionId);
         model.addAttribute("question", question);
 
-        var answers = answerService.getByQuestionId(questionId);
+        var answers = answerService.getByQuestionId(questionId, page);
         model.addAttribute("answers", answers);
 
         return "question/question";
@@ -37,17 +40,20 @@ public class QuestionController {
 
     @GetMapping("/questions")
     public String getQuestions(
-        @RequestParam(name = "tag", required = false) Set<String> tags,
-        @RequestParam(name = "page", defaultValue = "0") int page,
-        Model model) {
+            @RequestParam(name = "tag", required = false) Set<String> tags,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            Model model) {
         var questions = questionService.getByTag(tags, page);
         model.addAttribute("questions", questions);
         return "question/questions";
     }
 
     @GetMapping("/users/{uId}/questions")
-    public String getQuestionsByUser(@PathVariable("uId") String userId, Model model) {
-        var questionsByUser = questionService.getByUser(userId);
+    public String getQuestionsByUser(
+            @PathVariable("uId") String userId,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            Model model) {
+        var questionsByUser = questionService.getByUser(userId, page);
         model.addAttribute("questions", questionsByUser);
         return "question/questions-by-user";
     }

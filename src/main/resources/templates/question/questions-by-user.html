@@ -35,7 +35,7 @@
 
     <ul>
         <li th:each="q : ${questions}">
-            Answered by: <span th:text="${q.userId}"></span><br>
+            Asked by: <span th:text="${q.userId}"></span><br>
             ID: <span th:text="${q.questionId}"></span><br>
             Header: <span th:text="${q.header}"></span><br>
             Tags: <ul>
