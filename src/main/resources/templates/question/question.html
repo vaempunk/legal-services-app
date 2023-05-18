@@ -1,68 +1,129 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark" xmlns="http://thymeleaf.org"
-    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns="http://thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Me</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
-        crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Me</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+    crossorigin="anonymous"></script>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">Legal Services</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
-                    <li class="nav-item"> <a href="/users/me" class="nav-link">Me</a>
-                    </li>
-                    <li class="nav-item"><a href="/logout" class="nav-link">Logout</a></li>
-                </ul>
-            </div>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">Legal Services</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="/">Домашняя</a>
+          </li>
+          <li class="nav-item">
+            <a href="/questions" class="nav-link">Вопросы</a>
+          </li>
+          <li sec:authorize="isAuthenticated()" class="nav-item">
+            <a href="/users/me" class="nav-link">Профиль</a>
+          </li>
+          <li sec:authorize="hasRole('admin')" class="nav-item">
+            <a href="/admin" class="nav-link">Панель администратора</a>"></a>
+          </li>
+          <li sec:authorize="isAuthenticated()" class="nav-item">
+            <a href="/logout" class="nav-link">Выйти</a>
+          </li>
+          <li class="nav-item dropdown" sec:authorize="!isAuthenticated()">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">Присоединиться</a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="/login">Вход</a></li>
+              <li><a class="dropdown-item" href="/registration">Регистрация</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <header class="mx-3 my-3">
+    <h1>Вопрос</h1>
+  </header>
+
+  <main class="container">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="card-title" th:text="${question.header}"></h5>
+      </div>
+      <div class="card-body">
+        <h6 class="card-subtitle text-body-secondary mb-2">
+          задан <span th:text="${question.prettyDate}"></span> <a th:href="@{/users/{userId}(userId=${question.userId})}" th:text="${question.userEmail}"></a>
+        </h6>
+        <p class="card-text" th:text="${question.body}"></p>
+      </div>
+      <div class="card-footer text-body-secondary">
+        Теги:
+        <ul class="list-inline">
+          <li class="list-inline-item" th:each="tag : ${question.tags}">
+            <a th:href="@{/questions?tag={tag}(tag=${tag})}" th:text="${tag}"></a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="card-title">Ответить на вопрос</h5>
+      </div>
+      <div class="card-body">
+        <form th:action="@{/questions/{qId}/answers(qId=${question.questionId})}" method="post">
+          <div class="form-floating mb-3">
+            <input type="text" name="tldr" id="i-tldr" class="form-control" placeholder="">
+            <label for="i-tldr" class="form-label"><b>TL;DR</b></label>
+          </div>
+          <div class="form-floating mb-3">
+            <textarea name="body" id="i-body" rows="1" class="form-control" placeholder=""></textarea>
+            <label for="i-body" class="form-label">Ответ</label>
+          </div>
+          <input type="submit" value="Отправить" class="btn btn-primary">
+        </form>
+      </div>
+    </div>
+
+    <h2 class="mb-4">Ответы</h2>
+
+    <div th:each="answer : ${answers}" class="row mb-3">
+      <div class="col">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <h5 th:text="${answer.userEmail}" class="card-title mb-0"></h5>
+            <p th:text="${answer.prettyDate}" class="text-body-secondary mb-0"></p>
+          </div>
+          <div class="card-body">
+            <h5 th:text="${answer.tldr}" class="card-title"></h5>
+            <p th:text="${answer.body}" class="card-text"></p>
+          </div>
+          <div class="card-footer text-body-secondary">
+            <form th:action="@{/questions/{qId}/answers/{aId}/like(aId=${answer.answerId},qId=${question.questionId})}"
+              method="post" style="display: inline">
+              <input type="submit" value="👍" class="btn">
+            </form>
+            <b th:text="${answer.rating}"></b>
+            <form
+              th:action="@{/questions/{qId}/answers/{aId}/dislike(aId=${answer.answerId},qId=${question.questionId})}"
+              method="post" style="display: inline">
+              <input type="submit" value="👎" class="btn">
+            </form>
+          </div>
         </div>
-    </nav>
-
-    Asked by: <span th:text="${question.userEmail}"></span><br>
-    Header: <span th:text="${question.header}"></span><br>
-    Body: <span th:text="${question.body}"></span><br>
-    Tags: <ul>
-        <li th:each="tag : ${question.tags}"><span th:text="${tag}"></span></li>
-    </ul>
-    Date: <span th:text="${question.date}"></span>
-
-    <h2>Answer this Question</h2>
-    <form action="#" th:action="@{/questions/{qId}/answers(qId=${question.questionId})}" method="post">
-        Body: <input type="text" name="body">
-        TLDR: <input type="text" name="tldr">
-        <input type="submit" value="Answer">
-    </form>
-
-    <ul>
-        <li th:each="answer : ${answers}">
-            <form action="#" th:action="@{/questions/{qId}/answers/{aId}/like(aId=${answer.answerId},qId=${question.questionId})}" method="post">
-                <input type="submit" value="Like"></input>
-            </form>
-            <form action="#" th:action="@{/questions/{qId}/answers/{aId}/dislike(aId=${answer.answerId},qId=${question.questionId})}" method="post">
-                <input type="submit" value="Dislike"></input>
-            </form>
-            User: <span th:text="${answer.userEmail}"></span><br>
-            Rating: <span th:text="${answer.rating} ?: 0"></span><br>
-            Date: <span th:text="${answer.date}"></span><br>
-            TL;DR: <span th:text="${answer.tldr}"></span><br>
-            Body: <span th:text="${answer.body}"></span>
-        </li>
-    </ul>
+      </div>
+    </div>
+  </main>
 
 </body>
 

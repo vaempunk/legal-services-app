@@ -4,6 +4,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,9 +22,10 @@ public class SecurityConfiguration {
                 .cors(withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/", "/registration").permitAll()
-                        // .requestMatchers("/lawyer/**", "/lawyer/me").hasRole("lawyer")
-                        .anyRequest().authenticated())
+                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/admin").hasRole("admin")
+                        .requestMatchers(HttpMethod.POST).authenticated()
+                        .anyRequest().permitAll())
                 .formLogin(login -> login
                         .loginPage("/login")
                         .defaultSuccessUrl("/")

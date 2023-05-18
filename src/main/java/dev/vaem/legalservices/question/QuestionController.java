@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import dev.vaem.legalservices.answer.AnswerService;
 import dev.vaem.legalservices.user.UserAccount;
+import jakarta.validation.Valid;
 
 @Controller
 public class QuestionController {
@@ -55,6 +56,7 @@ public class QuestionController {
             Model model) {
         var questionsByUser = questionService.getByUser(userId, page);
         model.addAttribute("questions", questionsByUser);
+        model.addAttribute("userId", userId);
         return "question/questions-by-user";
     }
 
@@ -64,7 +66,9 @@ public class QuestionController {
     }
 
     @PostMapping("/questions")
-    public String addQuestion(@AuthenticationPrincipal UserAccount me, @ModelAttribute Question question) {
+    public String addQuestion(
+            @AuthenticationPrincipal UserAccount me,
+            @ModelAttribute @Valid Question question) {
         var questionId = questionService.save(me, question);
         return "redirect:questions/" + questionId;
     }
